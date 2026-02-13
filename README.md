@@ -1,4 +1,4 @@
-# SauceDemo Automation Test Framework
+# EMIBU Web App Automated Testing
 
 ## Opis projekta
 Ovaj projekt predstavlja automatizirani testni framework za osobni projekt, web stranicu napravljena Django frameworkom koja se nalazi u repozitoriju: https://github.com/Zvonimir-Staubringer/EMIBU_projekt  
