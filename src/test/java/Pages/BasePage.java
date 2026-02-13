@@ -11,6 +11,7 @@ public class BasePage {
     By loginButton = By.linkText("Login");
     By registerButton = By.linkText("Register");
     By productsButton = By.linkText("Products");
+    By profileButton = By.linkText("Profile");
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
@@ -30,6 +31,10 @@ public class BasePage {
 
     public void products() {
         driver.findElement(productsButton).click();
+    }
+
+    public void profile() {
+        driver.findElement(profileButton).click();
     }
 }
 

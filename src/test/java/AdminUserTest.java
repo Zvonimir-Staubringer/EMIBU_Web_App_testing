@@ -1,6 +1,8 @@
 import Pages.BasePage;
 import Pages.LoginPage;
 
+import Pages.OrdersPage;
+import Pages.ProfilePage;
 import Utils.ExtentManager;
 import Utils.ScreenshotUtils;
 import com.aventstack.extentreports.ExtentReports;
@@ -18,12 +20,14 @@ import org.testng.annotations.*;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.util.List;
 
-public class LoginExistingUserTest {
-
+public class AdminUserTest {
     WebDriver driver;
     LoginPage loginPage;
     BasePage basePage;
+    ProfilePage profilePage;
+    OrdersPage ordersPage;
     ExtentReports extent = ExtentManager.getInstance();
     ExtentTest test;
 
@@ -34,14 +38,17 @@ public class LoginExistingUserTest {
         driver.get("http://127.0.0.1:8000/");
         loginPage = new LoginPage(driver);
         basePage = new BasePage(driver);
+        profilePage = new ProfilePage(driver);
+        ordersPage = new OrdersPage(driver);
     }
     @BeforeMethod
     public void registerTest(Method method) {
         // This automatically names the report entry after your @Test method name
         test = extent.createTest(method.getName());
     }
+
     @Test(priority = 1)
-    public void verifySuccessfulLogin() throws InterruptedException {
+    public void succesfulAdminLogin() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         driver.manage().window().maximize();
 
@@ -49,24 +56,56 @@ public class LoginExistingUserTest {
         basePage.login();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
-        loginPage.login("username1", "password1");
+        loginPage.login("admin", "admin");
 
         String expectedUrl = "http://127.0.0.1:8000/";
         wait.until(ExpectedConditions.urlToBe(expectedUrl));
         Assert.assertEquals(driver.getCurrentUrl(), expectedUrl, "Login failed or redirected incorrectly!");
     }
     @Test(priority = 2)
-    public void verifySuccesfulLogout() throws InterruptedException {
+    public void succesfulAdminDashboard() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        driver.manage().window().maximize();
 
-        wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Logout")));
-        basePage.logout();
+        wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Profile")));
+        basePage.profile();
 
-        String expectedUrl = "http://127.0.0.1:8000/";
-        wait.until(ExpectedConditions.urlToBe(expectedUrl));
-        Assert.assertEquals(driver.getCurrentUrl(), expectedUrl, "Login failed or redirected incorrectly!");
-        Thread.sleep(3000);
+        String expectedEmail = "admin@gmail.com";
+        String actualEmail = profilePage.getUserEmail();
+        Assert.assertEquals(actualEmail, expectedEmail, "Login failed or wrong user!");
     }
+    @Test(priority = 3)
+    public void workingOrdersSearch() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        driver.manage().window().maximize();
+        String searchName = "Marko";
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Profile")));
+        driver.findElement(By.linkText("Profile")).click();
+        driver.get("http://127.0.0.1:8000/store/orders/");
+
+        WebElement oldList = driver.findElement(By.xpath("//div[contains(@class, 'col-md-6')][1]"));
+
+        ordersPage.searchOrders(searchName);
+
+        wait.until(ExpectedConditions.stalenessOf(oldList));
+
+        List<WebElement> orderCustomers = driver.findElements(
+                By.xpath("//div[contains(@class, 'col-md-6')][1]//p[contains(text(), 'Customer:')]")
+        );
+
+        ordersPage.searchProjects(searchName);
+
+        List<WebElement> projectCustomers = driver.findElements(
+                By.xpath("//div[contains(@class, 'col-md-6')][2]//p[contains(text(), 'Customer:')]")
+        );
+
+        for (WebElement customer : projectCustomers) {
+            Assert.assertTrue(customer.getText().contains(searchName),
+                    "Project column found a non-matching customer: " + customer.getText());
+        }
+    }
+
     @AfterMethod
     public void afterEachTest(ITestResult result) {
         if (result.getStatus() == ITestResult.FAILURE) {
@@ -81,7 +120,7 @@ public class LoginExistingUserTest {
     }
     @AfterClass
     public void teardownTest() {
+        extent.flush();
         driver.quit();
     }
 }
-

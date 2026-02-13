@@ -1,6 +1,9 @@
 import Pages.*;
 
+import Utils.ExtentManager;
 import Utils.ScreenshotUtils;
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,6 +15,7 @@ import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 
 public class CheckoutProcessTest {
@@ -20,6 +24,8 @@ public class CheckoutProcessTest {
      CartDetailPage cartDetailPage;
      CheckoutPage checkoutPage;
      PaymentSummaryPage paymentSummaryPage;
+    ExtentReports extent = ExtentManager.getInstance();
+    ExtentTest test;
 
      @BeforeClass
      public void setupTest() {
@@ -31,6 +37,12 @@ public class CheckoutProcessTest {
          checkoutPage = new CheckoutPage(driver);
          paymentSummaryPage = new PaymentSummaryPage(driver);
      }
+    @BeforeMethod
+    public void registerTest(Method method) {
+        // This automatically names the report entry after your @Test method name
+        test = extent.createTest(method.getName());
+    }
+
     @Test(priority = 1)
     public void verifyCorrectItemsInCart() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -85,14 +97,20 @@ public class CheckoutProcessTest {
     }
     @AfterMethod
     public void afterEachTest(ITestResult result) {
-        if (result.getStatus() == ITestResult.SUCCESS) {
+        if (result.getStatus() == ITestResult.FAILURE) {
             ScreenshotUtils.takeScreenshot(driver, result.getName());
-            System.out.println("Screenshot taken for failed test: " + result.getName());
+
+            String screenshotPath = "../screenshots/" + result.getName() + ".png";
+            test.fail("Test Failed: " + result.getThrowable());
+            test.addScreenCaptureFromPath(screenshotPath);
+        } else if (result.getStatus() == ITestResult.SUCCESS) {
+            test.pass("Test Passed");
         }
     }
     @AfterClass
     public void teardownTest()
     {
+        extent.flush();
         if (driver != null) {
             driver.quit();
         }

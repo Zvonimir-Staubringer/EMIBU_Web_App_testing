@@ -1,4 +1,7 @@
+import Utils.ExtentManager;
 import Utils.ScreenshotUtils;
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -11,17 +14,25 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 
 public class OpenAppTest {
     public WebDriver driver;
     public String testURL = "http://127.0.0.1:8000/";
+    ExtentReports extent = ExtentManager.getInstance();
+    ExtentTest test;
 
     @BeforeMethod
     public void setupTest() {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         driver.navigate().to(testURL);
+    }
+    @BeforeMethod
+    public void registerTest(Method method) {
+        // This automatically names the report entry after your @Test method name
+        test = extent.createTest(method.getName());
     }
 
     @Test
@@ -38,9 +49,14 @@ public class OpenAppTest {
 
     @AfterMethod
     public void afterEachTest(ITestResult result) {
-        if (result.getStatus() == ITestResult.SUCCESS) {
+        if (result.getStatus() == ITestResult.FAILURE) {
             ScreenshotUtils.takeScreenshot(driver, result.getName());
-            System.out.println("Screenshot taken for failed test: " + result.getName());
+
+            String screenshotPath = "../screenshots/" + result.getName() + ".png";
+            test.fail("Test Failed: " + result.getThrowable());
+            test.addScreenCaptureFromPath(screenshotPath);
+        } else if (result.getStatus() == ITestResult.SUCCESS) {
+            test.pass("Test Passed");
         }
     }
     @AfterMethod
