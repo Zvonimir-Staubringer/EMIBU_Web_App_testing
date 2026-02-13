@@ -1,0 +1,16 @@
+D:\EMIBU_Web_App_testing\src\test\java\AdminUserTest.java
+D:\EMIBU_Web_App_testing\src\test\java\CheckoutProcessTest.java
+D:\EMIBU_Web_App_testing\src\test\java\LoginExistingUserTest.java
+D:\EMIBU_Web_App_testing\src\test\java\LoginNonexistingUserTest.java
+D:\EMIBU_Web_App_testing\src\test\java\OpenAppTest.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\BasePage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\CartDetailPage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\CheckoutPage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\LoginPage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\OrdersPage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\PaymentSummaryPage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\ProfilePage.java
+D:\EMIBU_Web_App_testing\src\test\java\Pages\RegisterPage.java
+D:\EMIBU_Web_App_testing\src\test\java\UserRegistrationTest.java
+D:\EMIBU_Web_App_testing\src\test\java\Utils\ExtentManager.java
+D:\EMIBU_Web_App_testing\src\test\java\Utils\ScreenshotUtils.java
